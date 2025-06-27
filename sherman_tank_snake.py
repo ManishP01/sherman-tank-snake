@@ -39,8 +39,9 @@ class TankSnake:
         self.move_threshold = 8  # How often to add new segments
         self.trap_active = False
         self.trap_timer = 0
-        self.trap_duration = 300  # 5 seconds at 60 FPS
+        self.trap_duration = 180  # 3 seconds at 60 FPS (shorter for better gameplay)
         self.trapped_enemies = []
+        self.auto_trap_check_timer = 0  # Check for auto-traps every few frames
         # Tank damage states
         self.damage_level = 0  # 0 = healthy, 1 = damaged, 2 = heavily damaged
         self.max_damage = 2
@@ -74,6 +75,14 @@ class TankSnake:
         # Only add segments when moving
         if moving:
             self.move_counter += 1
+        
+        # Auto-check for traps every 10 frames
+        self.auto_trap_check_timer += 1
+        if self.auto_trap_check_timer >= 10:
+            self.auto_trap_check_timer = 0
+            return True  # Signal to check for auto-traps
+        
+        return False
     
     def update_segments(self):
         """Update segment lifetimes and remove expired ones"""
@@ -151,13 +160,38 @@ class TankSnake:
             return False  # Not destroyed
         return True  # Destroyed only at max damage
     
-    def activate_trap(self):
-        """Activate the trap - snake trail becomes a trap"""
-        if len(self.segments) >= 4 and not self.trap_active:
+    def check_auto_trap(self, enemies):
+        """Automatically check if we've encircled enemies and activate trap"""
+        if self.trap_active or len(self.segments) < 6:  # Need minimum segments to form a trap
+            return False
+        
+        # Check if any enemies are trapped by our current trail
+        trapped_enemies = []
+        for enemy in enemies:
+            if self.is_enemy_trapped(enemy):
+                trapped_enemies.append(enemy)
+        
+        # If we have trapped enemies, auto-activate the trap
+        if trapped_enemies:
             self.trap_active = True
             self.trap_timer = 0
+            self.trapped_enemies = trapped_enemies
+            for enemy in trapped_enemies:
+                enemy.trapped = True
+            print(f"Auto-trap activated! {len(trapped_enemies)} enemies trapped!")
             return True
+        
         return False
+    
+    def activate_trap(self):
+        """Manual trap activation (for T key) - now just detonates early if trap is active"""
+        if self.trap_active:
+            # Early detonation
+            destroyed_enemies = self.trapped_enemies.copy()
+            self.detonate_trap()
+            print("Manual detonation!")
+            return destroyed_enemies
+        return []
     
     def update_trap(self, enemies):
         """Update trap logic"""
@@ -183,34 +217,43 @@ class TankSnake:
         return []
     
     def is_enemy_trapped(self, enemy):
-        """Check if enemy is inside the snake trail polygon"""
-        if len(self.segments) < 4:
+        """Check if enemy is inside the snake trail polygon using a more reliable method"""
+        if len(self.segments) < 6:  # Need minimum segments to form a meaningful enclosure
             return False
         
-        # Only use segments that are still visible (have lifetime > 0)
-        visible_segments = [(x, y) for x, y, lifetime in self.segments if lifetime > 30]
+        # Only use segments that are still visible and form a reasonable trail
+        visible_segments = [(x, y) for x, y, lifetime in self.segments if lifetime > 60]
         
-        if len(visible_segments) < 4:
+        if len(visible_segments) < 6:
             return False
         
-        # Simple point-in-polygon test using ray casting
-        x, y = enemy.x, enemy.y
-        n = len(visible_segments)
-        inside = False
+        # Check if the enemy is reasonably enclosed by checking distance to trail segments
+        enemy_x, enemy_y = enemy.x, enemy.y
         
-        p1x, p1y = visible_segments[0]
-        for i in range(1, n + 1):
-            p2x, p2y = visible_segments[i % n]
-            if y > min(p1y, p2y):
-                if y <= max(p1y, p2y):
-                    if x <= max(p1x, p2x):
-                        if p1y != p2y:
-                            xinters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
-                        if p1x == p2x or x <= xinters:
-                            inside = not inside
-            p1x, p1y = p2x, p2y
+        # Simple enclosure test: if enemy is surrounded by trail segments in multiple directions
+        directions_blocked = 0
+        check_directions = [0, 45, 90, 135, 180, 225, 270, 315]  # 8 directions
         
-        return inside
+        for angle in check_directions:
+            # Cast a ray in this direction and see if it hits our trail
+            rad = math.radians(angle)
+            ray_length = 100  # Maximum distance to check
+            
+            for distance in range(20, ray_length, 10):  # Check every 10 pixels
+                check_x = enemy_x + math.cos(rad) * distance
+                check_y = enemy_y + math.sin(rad) * distance
+                
+                # Check if this point is close to any of our trail segments
+                for seg_x, seg_y in visible_segments:
+                    if math.sqrt((check_x - seg_x)**2 + (check_y - seg_y)**2) < self.segment_size:
+                        directions_blocked += 1
+                        break
+                else:
+                    continue
+                break
+        
+        # If at least 6 out of 8 directions are blocked, consider the enemy trapped
+        return directions_blocked >= 6
     
     def detonate_trap(self):
         """Detonate the trap and reset"""
@@ -654,9 +697,32 @@ def main():
                     bullet = Bullet(head_x, head_y, tank_snake.direction)
                     bullets.append(bullet)
                 elif event.key == pygame.K_t and not game_over:
-                    # Activate trap
-                    if tank_snake.activate_trap():
-                        print("Trap activated!")
+                    # Manual detonation if trap is active
+                    if tank_snake.trap_active:
+                        destroyed_by_manual = tank_snake.activate_trap()
+                        if destroyed_by_manual:
+                            # Create explosion
+                            blast_center, blast_radius = tank_snake.get_trap_blast_radius()
+                            if blast_center:
+                                explosions.append(Explosion(blast_center[0], blast_center[1], blast_radius))
+                                
+                                # Check if player takes blast damage
+                                if tank_snake.check_blast_damage(blast_center, blast_radius):
+                                    if tank_snake.take_damage():
+                                        game_over = True
+                                    print(f"Manual blast damage! Tank condition: {['HEALTHY', 'DAMAGED', 'CRITICAL'][tank_snake.damage_level]}")
+                                
+                                # Remove destroyed enemies and award points
+                                for enemy in destroyed_by_manual:
+                                    if enemy in enemies:
+                                        enemies.remove(enemy)
+                                        # Bonus points for trap kills
+                                        if enemy.enemy_type == "basic":
+                                            score += 40
+                                        elif enemy.enemy_type == "fast":
+                                            score += 60
+                                        elif enemy.enemy_type == "tank":
+                                            score += 100
                 elif event.key == pygame.K_r and game_over:
                     # Restart game
                     tank_snake = TankSnake(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
@@ -679,7 +745,11 @@ def main():
             keys = pygame.key.get_pressed()
             
             # Update game objects
-            tank_snake.update(keys)
+            should_check_traps = tank_snake.update(keys)
+            
+            # Auto-check for traps when enemies are encircled
+            if should_check_traps:
+                tank_snake.check_auto_trap(enemies)
             
             # Update trap system
             destroyed_by_trap = tank_snake.update_trap(enemies)
@@ -852,7 +922,7 @@ def main():
         controls = [
             "WASD/Arrows: Move & Rotate",
             "Space: Shoot",
-            "T: Activate Trap",
+            "T: Manual Detonate (if trap active)",
             "ESC: Quit"
         ]
         for i, text in enumerate(controls):
@@ -864,11 +934,11 @@ def main():
         features_text = [
             "ENHANCED FEATURES:",
             "• Realistic tank with treads & turret",
-            "• Visible snake trail with fading",
+            "• AUTO-TRAP: Encircle enemies to trap them!",
             "• Tank takes damage, doesn't die instantly",
             "• Damaged tank moves slower & rotates slower",
             "• Trail blinks before disappearing",
-            "• Smoke effects when damaged"
+            "• Press T for manual detonation"
         ]
         for i, text in enumerate(features_text):
             color = WHITE if i == 0 else GRAY

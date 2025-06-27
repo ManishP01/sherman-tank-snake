@@ -22,13 +22,11 @@ Sherman Tank Snake is an innovative arcade-style game where you command a legend
 - **Blinking Warning**: Trail blinks rapidly before disappearing
 - **Trap Visualization**: Active traps show pulsing red connections
 
-### 💥 Strategic Combat System
-- **Dual Weapon Types**:
-  - **Direct Fire**: Space bar to fire 75mm Sherman cannon rounds
-  - **Trap System**: T key to activate explosive trail traps
-- **Progressive Damage**: Tank takes damage instead of instant death
-- **Capability Loss**: Damaged tanks move and rotate slower
-- **Risk vs Reward**: Own trap explosions can damage your tank
+### 💥 Intelligent Auto-Trap System
+- **Automatic Detection**: Traps activate automatically when enemies are encircled
+- **Visual Feedback**: Active traps show pulsing red connections and countdown timer
+- **Manual Control**: Press T for early detonation of active traps
+- **Risk vs Reward**: Own trap explosions can damage your Sherman
 
 ### 🎯 Enemy Types
 - **Basic Enemies** (Red circles): Standard movement, 20 points
@@ -46,7 +44,7 @@ Sherman Tank Snake is an innovative arcade-style game where you command a legend
 |-----|--------|
 | **WASD** / **Arrow Keys** | Move and rotate Sherman tank |
 | **Space** | Fire 75mm cannon |
-| **T** | Activate trap (requires 4+ trail segments) |
+| **T** | Manual detonation (when trap is active) |
 | **R** | Restart game (when game over) |
 | **ESC** | Quit game |
 
@@ -58,17 +56,18 @@ Sherman Tank Snake is an innovative arcade-style game where you command a legend
 3. **Enemy Engagement**: Choose between direct fire or trap tactics
 
 ### Advanced Tactics
-1. **Encirclement**: Surround groups of enemies with your trail
-2. **Trap Timing**: Activate traps when enemies are inside your trail
-3. **Positioning**: Stay away from your own trap blast radius
-4. **Damage Management**: Avoid taking damage to maintain full capabilities
+1. **Auto-Encirclement**: Simply drive around enemies - traps activate automatically!
+2. **Timing Control**: Let traps detonate naturally or press T for early detonation
+3. **Safe Distance**: Stay clear of your own blast radius to avoid damage
+4. **Damage Management**: Avoid taking damage to maintain full Sherman capabilities
 
-### Trap System
-- **Setup**: Create a closed loop with your trail around enemies
-- **Activation**: Press T to arm the trap (5-second timer)
-- **Execution**: Trapped enemies panic and move frantically
-- **Explosion**: Massive blast destroys all trapped enemies
-- **Caution**: Stay clear of blast radius to avoid self-damage
+### Auto-Trap System
+- **Automatic Activation**: Drive around enemies to automatically create traps
+- **Detection**: System checks if enemies are encircled every few frames
+- **Visual Warning**: Trapped enemies show panic indicators and move frantically
+- **Timer**: 3-second countdown before automatic detonation
+- **Manual Override**: Press T to detonate early for tactical advantage
+- **Safety**: Stay clear of blast radius to avoid Sherman damage
 
 ## 🛠️ Technical Requirements
 
