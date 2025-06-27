@@ -113,8 +113,8 @@ class TankSnake:
         
         # Add new segment periodically
         if self.move_counter >= self.move_threshold:
-            # Longer lifetime for better visibility
-            segment_lifetime = 120 + (self.max_length * 10)  # 2+ seconds base + length bonus
+            # Much longer lifetime for better trap planning
+            segment_lifetime = 300 + (self.max_length * 15)  # 5+ seconds base + length bonus
             self.segments.appendleft((new_x, new_y, segment_lifetime))
             self.move_counter = 0
             
@@ -139,7 +139,7 @@ class TankSnake:
         
         # Add new segment periodically
         if self.move_counter >= self.move_threshold:
-            segment_lifetime = 120 + (self.max_length * 10)
+            segment_lifetime = 300 + (self.max_length * 15)  # 5+ seconds base + length bonus
             self.segments.appendleft((new_x, new_y, segment_lifetime))
             self.move_counter = 0
             
@@ -222,7 +222,7 @@ class TankSnake:
             return False
         
         # Only use segments that are still visible and form a reasonable trail
-        visible_segments = [(x, y) for x, y, lifetime in self.segments if lifetime > 60]
+        visible_segments = [(x, y) for x, y, lifetime in self.segments if lifetime > 120]  # More lenient visibility
         
         if len(visible_segments) < 6:
             return False
@@ -284,13 +284,8 @@ class TankSnake:
         return (center_x, center_y), radius
     
     def check_blast_damage(self, blast_center, blast_radius):
-        """Check if tank takes damage from trap explosion"""
-        if not blast_center:
-            return False
-        
-        head_x, head_y, _ = self.segments[0]
-        distance = math.sqrt((head_x - blast_center[0])**2 + (head_y - blast_center[1])**2)
-        return distance < blast_radius * 0.7  # Tank takes damage if within 70% of blast radius
+        """Tank is immune to its own trap explosions - removed self-damage"""
+        return False  # Tank never takes damage from own traps
     
     def check_self_collision(self):
         """Check if tank head hits its own body"""
@@ -404,12 +399,12 @@ class TankSnake:
                     base_size = max(self.segment_size // 2 - (i * 2), 6)
                     
                     # Calculate alpha based on lifetime (fade out effect)
-                    max_lifetime = 120 + (self.max_length * 10)
-                    alpha_factor = min(1.0, lifetime / 60.0)  # Fade in last second
+                    max_lifetime = 300 + (self.max_length * 15)  # Updated to match new lifetime
+                    alpha_factor = min(1.0, lifetime / 120.0)  # Fade in last 2 seconds
                     
                     # Blinking effect when lifetime is low
-                    if lifetime < 60:
-                        blink_factor = math.sin(lifetime * 0.3) * 0.5 + 0.5
+                    if lifetime < 120:  # Blink in last 2 seconds
+                        blink_factor = math.sin(lifetime * 0.2) * 0.5 + 0.5
                         alpha_factor *= blink_factor
                     
                     # Change color based on trap status
@@ -431,7 +426,7 @@ class TankSnake:
         
         # Draw trap connections when active
         if self.trap_active and len(self.segments) > 3:
-            visible_segments = [(x, y) for x, y, lifetime in self.segments if lifetime > 30]
+            visible_segments = [(x, y) for x, y, lifetime in self.segments if lifetime > 120]  # Updated visibility threshold
             if len(visible_segments) > 3:
                 # Draw lines connecting the segments to show the trap area
                 for i in range(len(visible_segments)):
@@ -706,13 +701,8 @@ def main():
                             if blast_center:
                                 explosions.append(Explosion(blast_center[0], blast_center[1], blast_radius))
                                 
-                                # Check if player takes blast damage
-                                if tank_snake.check_blast_damage(blast_center, blast_radius):
-                                    if tank_snake.take_damage():
-                                        game_over = True
-                                    print(f"Manual blast damage! Tank condition: {['HEALTHY', 'DAMAGED', 'CRITICAL'][tank_snake.damage_level]}")
-                                
-                                # Remove destroyed enemies and award points
+                                # Tank is now immune to own explosions - no damage check needed
+                                print("Manual detonation - Tank is safe from own explosions!")
                                 for enemy in destroyed_by_manual:
                                     if enemy in enemies:
                                         enemies.remove(enemy)
@@ -759,13 +749,8 @@ def main():
                 if blast_center:
                     explosions.append(Explosion(blast_center[0], blast_center[1], blast_radius))
                     
-                    # Check if player takes blast damage
-                    if tank_snake.check_blast_damage(blast_center, blast_radius):
-                        if tank_snake.take_damage():
-                            game_over = True
-                        print(f"Blast damage! Tank condition: {['HEALTHY', 'DAMAGED', 'CRITICAL'][tank_snake.damage_level]}")
-                    
-                    # Remove destroyed enemies and award points
+                    # Tank is immune to own explosions - no self-damage
+                    print("Auto-trap detonated - Tank is safe from own explosions!")
                     for enemy in destroyed_by_trap:
                         if enemy in enemies:
                             enemies.remove(enemy)
@@ -935,9 +920,9 @@ def main():
             "ENHANCED FEATURES:",
             "• Realistic tank with treads & turret",
             "• AUTO-TRAP: Encircle enemies to trap them!",
-            "• Tank takes damage, doesn't die instantly",
-            "• Damaged tank moves slower & rotates slower",
-            "• Trail blinks before disappearing",
+            "• LONGER TRAILS: 5+ seconds for better planning",
+            "• TANK IMMUNITY: Your explosions won't hurt you",
+            "• Progressive damage from enemy contact only",
             "• Press T for manual detonation"
         ]
         for i, text in enumerate(features_text):

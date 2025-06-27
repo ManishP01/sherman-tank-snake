@@ -17,16 +17,16 @@ Sherman Tank Snake is an innovative arcade-style game where you command a legend
 - **Historical Accuracy**: Tank-style rotation and movement true to Sherman mechanics
 
 ### 🐍 Enhanced Snake Trail System
-- **Extended Visibility**: Trail segments last 2+ seconds for better strategic planning
+- **Extended Visibility**: Trail segments last 5+ seconds for strategic planning
 - **Fading Effects**: Smooth alpha blending as segments disappear
-- **Blinking Warning**: Trail blinks rapidly before disappearing
+- **Blinking Warning**: Trail blinks in final 2 seconds before disappearing
 - **Trap Visualization**: Active traps show pulsing red connections
 
 ### 💥 Intelligent Auto-Trap System
 - **Automatic Detection**: Traps activate automatically when enemies are encircled
+- **Tank Immunity**: Your own explosions never damage your Sherman tank
 - **Visual Feedback**: Active traps show pulsing red connections and countdown timer
 - **Manual Control**: Press T for early detonation of active traps
-- **Risk vs Reward**: Own trap explosions can damage your Sherman
 
 ### 🎯 Enemy Types
 - **Basic Enemies** (Red circles): Standard movement, 20 points
@@ -58,8 +58,8 @@ Sherman Tank Snake is an innovative arcade-style game where you command a legend
 ### Advanced Tactics
 1. **Auto-Encirclement**: Simply drive around enemies - traps activate automatically!
 2. **Timing Control**: Let traps detonate naturally or press T for early detonation
-3. **Safe Distance**: Stay clear of your own blast radius to avoid damage
-4. **Damage Management**: Avoid taking damage to maintain full Sherman capabilities
+3. **Fearless Positioning**: Your own explosions won't hurt you - get close for better shots!
+4. **Damage Management**: Only enemy contact damages your Sherman
 
 ### Auto-Trap System
 - **Automatic Activation**: Drive around enemies to automatically create traps
@@ -67,7 +67,7 @@ Sherman Tank Snake is an innovative arcade-style game where you command a legend
 - **Visual Warning**: Trapped enemies show panic indicators and move frantically
 - **Timer**: 3-second countdown before automatic detonation
 - **Manual Override**: Press T to detonate early for tactical advantage
-- **Safety**: Stay clear of blast radius to avoid Sherman damage
+- **Tank Safety**: Sherman is immune to its own trap explosions
 
 ## 🛠️ Technical Requirements
 
