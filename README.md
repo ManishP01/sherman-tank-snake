@@ -171,11 +171,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Inspired by classic Snake and Tank games
 - Enhanced with modern game design principles
 
-## 📞 Contact
-
-- **Developer**: [Your Name]
-- **Email**: [your.email@example.com]
-- **GitHub**: [@yourusername](https://github.com/yourusername)
 
 ---
 
