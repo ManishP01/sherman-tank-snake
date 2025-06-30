@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sherman Tank Snake - AI-Assisted Game Development</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 2rem 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+        .header h1 {
+            font-size: 3rem;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .header p {
+            font-size: 1.2rem;
+            margin: 1rem 0;
+            opacity: 0.9;
+        }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+        .card p {
+            opacity: 0.9;
+            margin-bottom: 1.5rem;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #ee5a24, #ff6b6b);
+        }
+        .screenshot {
+            width: 100%;
+            border-radius: 10px;
+            margin: 1rem 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 Sherman Tank Snake</h1>
+            <p>AI-Assisted Retro Game Development Journey</p>
+            <p>A unique hybrid combining WWII tank combat with classic Snake mechanics</p>
+        </div>
+
+        <div class="cards">
+            <div class="card">
+                <h3>📖 Read the Blog Post</h3>
+                <p>Discover how I built this unique game using AI as my development partner. Learn about effective prompting techniques, development automation, and the creative process.</p>
+                <img src="screenshots/demo_01_trail_system.png" alt="Game Screenshot" class="screenshot">
+                <a href="blog_preview.html" class="btn btn-primary">Read Full Story</a>
+            </div>
+
+            <div class="card">
+                <h3>🎮 Play the Game</h3>
+                <p>Experience Sherman Tank Snake yourself! Control a WWII Sherman tank, leave strategic trails, and trap enemies with the innovative auto-trap system.</p>
+                <img src="screenshots/demo_02_auto_trap.png" alt="Auto-trap System" class="screenshot">
+                <a href="sherman_tank_snake.py" class="btn" download>Download Game</a>
+            </div>
+
+            <div class="card">
+                <h3>💻 View Source Code</h3>
+                <p>Explore the complete source code, see AI-generated solutions, and understand the technical implementation behind the game mechanics.</p>
+                <img src="screenshots/demo_03_tank_damage.png" alt="Tank Damage" class="screenshot">
+                <a href="https://github.com/your-username/sherman-tank-snake" class="btn">GitHub Repository</a>
+            </div>
+
+            <div class="card">
+                <h3>🔧 Technical Deep Dive</h3>
+                <p>Detailed code examples, AI-generated algorithms, and technical explanations for developers interested in the implementation details.</p>
+                <img src="screenshots/demo_04_combat.png" alt="Combat Action" class="screenshot">
+                <a href="TECHNICAL_DEEP_DIVE.md" class="btn">Technical Details</a>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🚗</div>
+                <h4>Realistic Tank Physics</h4>
+                <p>Authentic Sherman tank movement with momentum and rotation</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🐍</div>
+                <h4>Strategic Trail System</h4>
+                <p>Snake-like trail that fades over time for tactical planning</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">💥</div>
+                <h4>Auto-Trap Detection</h4>
+                <p>Intelligent system that automatically traps encircled enemies</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔥</div>
+                <h4>Progressive Damage</h4>
+                <p>Battle damage affects tank performance and visual effects</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🤖</div>
+                <h4>AI-Assisted Development</h4>
+                <p>Built with AI as a development partner for faster, better code</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎯</div>
+                <h4>Smart Enemy AI</h4>
+                <p>Enemies avoid trails and pursue the tank intelligently</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <h3>🚀 Game Controls</h3>
+            <p><strong>WASD/Arrow Keys:</strong> Move tank | <strong>SPACEBAR:</strong> Shoot | <strong>T:</strong> Manual trap | <strong>ESC:</strong> Quit</p>
+            <br>
+            <p>Built with Python, Pygame, and AI assistance | <a href="https://github.com/your-username/sherman-tank-snake" style="color: #fff;">View on GitHub</a></p>
+        </div>
+    </div>
+</body>
+</html>
