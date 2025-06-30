@@ -75,11 +75,21 @@ class TankSnake:
         # Update segment lifetimes
         self.update_segments()
         
-        # Keep tank on screen
-        head_x, head_y, _ = self.segments[0]
-        head_x = max(20, min(SCREEN_WIDTH - 20, head_x))
-        head_y = max(20, min(SCREEN_HEIGHT - 20, head_y))
-        self.segments[0] = (head_x, head_y, self.segments[0][2])
+        # FIXED: Allow tank to wrap around screen edges like classic Snake
+        head_x, head_y, lifetime = self.segments[0]
+        
+        # Wrap around screen edges
+        if head_x < 0:
+            head_x = SCREEN_WIDTH
+        elif head_x > SCREEN_WIDTH:
+            head_x = 0
+            
+        if head_y < 0:
+            head_y = SCREEN_HEIGHT
+        elif head_y > SCREEN_HEIGHT:
+            head_y = 0
+        
+        self.segments[0] = (head_x, head_y, lifetime)
     
     def update_segments(self):
         """Update segment lifetimes and remove expired ones"""
@@ -393,9 +403,23 @@ class Enemy:
         
         player_x, player_y = player_pos
         
-        # Calculate distance to player
+        # Calculate distance to player (accounting for screen wrapping)
         dx = player_x - self.x
         dy = player_y - self.y
+        
+        # Handle screen wrapping for shortest path
+        if abs(dx) > SCREEN_WIDTH / 2:
+            if dx > 0:
+                dx -= SCREEN_WIDTH
+            else:
+                dx += SCREEN_WIDTH
+                
+        if abs(dy) > SCREEN_HEIGHT / 2:
+            if dy > 0:
+                dy -= SCREEN_HEIGHT
+            else:
+                dy += SCREEN_HEIGHT
+        
         distance_to_player = math.sqrt(dx*dx + dy*dy)
         
         # Move towards player but avoid getting too close
@@ -408,9 +432,16 @@ class Enemy:
                 self.x += move_x
                 self.y += move_y
         
-        # Keep enemy on screen
-        self.x = max(self.size, min(SCREEN_WIDTH - self.size, self.x))
-        self.y = max(self.size, min(SCREEN_HEIGHT - self.size, self.y))
+        # Handle screen wrapping for enemies too
+        if self.x < 0:
+            self.x = SCREEN_WIDTH
+        elif self.x > SCREEN_WIDTH:
+            self.x = 0
+            
+        if self.y < 0:
+            self.y = SCREEN_HEIGHT
+        elif self.y > SCREEN_HEIGHT:
+            self.y = 0
     
     def avoid_trail_segments(self, player_segments):
         """Make enemy avoid trail segments"""
@@ -469,7 +500,7 @@ class Bullet:
 def main():
     # Set up the display
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pygame.display.set_caption("Sherman Tank Snake - Fixed Version")
+    pygame.display.set_caption("Sherman Tank Snake - Competitive Edition")
     clock = pygame.time.Clock()
     
     # Create game objects
@@ -489,17 +520,23 @@ def main():
     last_shot_time = 0
     shot_cooldown = 15  # Frames between shots
     
-    print("🎮 Sherman Tank Snake - Fixed Version")
-    print("🔧 Fixes Applied:")
+    print("🎮 Sherman Tank Snake - Competitive Edition")
+    print("🔧 Latest Fixes:")
     print("   ✅ Extended trail lifetime (10+ seconds)")
     print("   ✅ Tank immune to own trail")
-    print("   ✅ Improved trap detection")
-    print("   ✅ Better enemy AI")
+    print("   ✅ Screen edge wrapping (like classic Snake)")
+    print("   ✅ Competitive enemy collision damage")
+    print("   ✅ Working trap system")
     print("\nControls:")
     print("   WASD/Arrows: Move tank")
     print("   SPACEBAR: Shoot")
     print("   T: Manual trap trigger")
     print("   ESC: Quit")
+    print("\n🎯 Strategy Tips:")
+    print("   • Use screen edges to escape enemies")
+    print("   • Encircle enemies with your trail to trap them")
+    print("   • Avoid direct enemy contact - it damages your tank!")
+    print("   • Use manual trap trigger (T) for tactical detonations")
     
     while running:
         frame_count += 1
@@ -562,14 +599,26 @@ def main():
             enemy.avoid_trail_segments(tank_snake.segments)
             enemy.update(player_pos)
             
-            # Check enemy-tank collision (but NOT trail collision!)
+            # FIXED: Proper enemy-tank collision with damage
             head_x, head_y, _ = tank_snake.segments[0]
             distance = math.sqrt((enemy.x - head_x)**2 + (enemy.y - head_y)**2)
-            if distance < 20:  # Only tank body collision, not trail
+            if distance < 25:  # Tank body collision
+                print(f"💥 Tank hit by enemy! Distance: {distance:.1f}")
                 if tank_snake.take_damage():
                     print("💀 Tank destroyed!")
                     running = False
-                enemies.remove(enemy)
+                    break
+                # Don't remove enemy immediately - let them bounce off
+                # Push enemy away to prevent multiple hits
+                if distance > 0:
+                    push_x = (enemy.x - head_x) / distance * 30
+                    push_y = (enemy.y - head_y) / distance * 30
+                    enemy.x += push_x
+                    enemy.y += push_y
+                    
+                    # Keep enemy on screen after push
+                    enemy.x = max(enemy.size, min(SCREEN_WIDTH - enemy.size, enemy.x))
+                    enemy.y = max(enemy.size, min(SCREEN_HEIGHT - enemy.size, enemy.y))
         
         # Spawn new enemies occasionally
         if len(enemies) < 6 and frame_count % 300 == 0:  # Every 5 seconds
